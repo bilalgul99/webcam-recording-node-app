@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Webcam Recorder</title>
+  </head>
+  <body>
+    <video id="remoteVideo" width="640" height="480" controls src="./recording.webm"></video>
+    <video id="video" width="640" height="480"></video>
+    <button id="start">Start Recording</button>
+    <button id="stop">Stop Recording</button>
+    <script>
+    const startButton = document.getElementById('start');
+    const stopButton = document.getElementById('stop');
+      
+      const video = document.getElementById('video');
+      const remoteVideo = document.getElementById('remoteVideo');
+      let recorder;
+      let recordedChunks = [];
+      let mediaStream;
+      let mediaRecorder;
+
+      async function startRecording() {
+        }
+
+      remoteVideo.onplay = () => {
+        console.log('remote video is playing');
+      };
+
+      startButton.onclick=()=>{
+        remoteVideo.play();
+      };
+      stopButton.onclick = () => {
+        if (mediaRecorder) {
+          mediaRecorder.stop();
+        }
+        if (mediaStream) {
+          mediaStream.getTracks().forEach(track => track.stop());
+        }
+      };
+/*
+      const videoElement = document.createElement('video');
+      videoElement.src = 'video.mp4';
+      videoElement.load();
+      videoElement.onloadedmetadata = () => {
+        remoteVideo.srcObject = videoElement.srcObject;
+        remoteVideo.play();
+      };
+      */
+    </script>
+  </body>
+</html>

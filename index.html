@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Webcam Recorder</title>
+  </head>
+  <body>
+    <button id="start">Start Recording</button>
+    <button id="stop">Stop Recording</button>
+    <video id="video" width="640" height="480" autoplay></video>
+    <script>
+      const startButton = document.getElementById('start');
+      const stopButton = document.getElementById('stop');
+      const video = document.getElementById('video');
+      let recorder;
+      let recordedChunks = [];
+
+      startButton.onclick = async() => {
+        recordedChunks = [];
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        recorder = new MediaRecorder(stream);
+        recorder.ondataavailable = (e) => {
+          if (e.data.size > 0) {
+            recordedChunks.push(e.data);
+          }
+        };
+        recorder.onstop = async () => {
+          const blob = new Blob(recordedChunks, { type: 'video/webm' });
+          const file = new File([blob], 'recording.webm', { type: 'video/webm' });
+          const formData = new FormData();
+          formData.append('video', file);
+          
+          const response = await fetch('/upload', { method: 'POST', body: formData });
+          if (response.ok) {
+            const recordedVideo = document.createElement('video');
+            recordedVideo.src = URL.createObjectURL(blob);
+            recordedVideo.controls = true;
+            recordedVideo.width = 640;
+            recordedVideo.height = 480;
+            document.body.appendChild(recordedVideo);
+          } else {
+            console.error('Error uploading video');
+          }
+          // Release the resources associated with the MediaRecorder object
+          recorder.stream.getTracks().forEach(track => track.stop());
+          recorder = null;
+          recordedChunks = [];
+        };
+        recorder.start();
+      };
+
+      stopButton.onclick = () => {
+        if(recorder.state === 'inactive') return;
+        console.log('stop recording');
+        //
+        recorder.stop();
+        //release all resources acquired by the recorder so the camera turns off
+
+      };
+    </script>
+  </body>
+</html>
